@@ -28,7 +28,7 @@ public class TextScript : MonoBehaviour
             endCheck();
         }
     }
-
+//
     public void endCheck()
     {
         if (i < stringArray.Length)
