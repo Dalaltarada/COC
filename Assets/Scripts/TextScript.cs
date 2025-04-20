@@ -28,7 +28,7 @@ public class TextScript : MonoBehaviour
             endCheck();
         }
     }
-//
+    //
     public void endCheck()
     {
         if (i < stringArray.Length)
@@ -78,4 +78,6 @@ public class TextScript : MonoBehaviour
             yield return new WaitForSeconds(0.5f);
         }
     }
+
+    
 }
