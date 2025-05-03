@@ -11,11 +11,22 @@ public class TurnBack : MonoBehaviour
     public GUISkin customSkin;
 
     private float displayEndTime = 0f;
+    private AudioSource audioSource;
+
+    void Start()
+    {
+        audioSource = GetComponent<AudioSource>();
+    }
 
     void OnTriggerEnter()
     {
         GuiOn = true;
-        displayEndTime = Time.time + 5f; // Show for 5 seconds
+        displayEndTime = Time.time + 5f;
+
+        if (audioSource != null && !audioSource.isPlaying)
+        {
+            audioSource.Play();
+        }
     }
 
     void OnGUI()
