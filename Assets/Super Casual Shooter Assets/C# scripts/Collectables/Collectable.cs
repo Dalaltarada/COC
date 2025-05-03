@@ -28,7 +28,7 @@ public abstract class Collectable : MonoBehaviour
     }
 
 
-    private float collectable_distance = 5; // maximum distance from which player can pick up this item
+    private float collectable_distance = 3; // maximum distance from which player can pick up this item
 
 
     protected virtual void Update()
