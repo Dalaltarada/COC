@@ -39,7 +39,9 @@ public abstract class Collectable : MonoBehaviour
     public void pickUpThisObject()
     {
         is_in_players_pocket = true;
+        ItemTracker.Instance?.CollectItem(this.gameObject.tag); // Use tag to determine item type
     }
+
 
     public void dropThisObject()
     {
