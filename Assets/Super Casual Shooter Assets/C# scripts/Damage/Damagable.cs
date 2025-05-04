@@ -26,7 +26,9 @@ public class Damagable : MonoBehaviour
 
 
     [SerializeField]
-    private UnityEvent OnDeath; // what happens when health finishes
+    public UnityEvent OnDeath;
+
+
 
 
     [SerializeField]
@@ -43,16 +45,17 @@ public class Damagable : MonoBehaviour
 	}
 
 
-	// Update is called once per frame
-	void Update ()
+    void Update()
     {
         if (current_health < 1)
         {
+            Debug.Log($"{gameObject.name} has died!");
             OnDeath.Invoke();
         }
 
         handleDamageEffect();
     }
+
 
     private void handleDamageEffect()
     {
@@ -63,13 +66,14 @@ public class Damagable : MonoBehaviour
 
     }
 
-    public void takeDamage(float damage) // take a damage
+    public void takeDamage(float damage)
     {
         current_health -= damage;
+        Debug.Log($"{gameObject.name} took {damage} damage. Current health: {current_health}");
 
-       
         show_damage_effect_counter = still_show_damage_effect_for;
     }
+
 
 
     public void reverseDamage(int health) // when we get some health

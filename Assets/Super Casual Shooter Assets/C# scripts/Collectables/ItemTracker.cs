@@ -6,6 +6,7 @@ public class ItemTracker : MonoBehaviour
 {
     public static ItemTracker Instance;
 
+
     [Header("UI References")]
     public TMP_Text ak47Text;
     public TMP_Text bombControllerText;
@@ -49,4 +50,32 @@ public class ItemTracker : MonoBehaviour
         timeBombText.text = $"Time Bomb {collectedItems["TimeBomb"]}/{requiredItems["TimeBomb"]}";
         grenadeText.text = $"Grenade {collectedItems["Grenade"]}/{requiredItems["Grenade"]}";
     }
+
+    public bool AllItemsCollected()
+    {
+        foreach (var item in requiredItems)
+        {
+            if (collectedItems[item.Key] < item.Value)
+                return false;
+        }
+        return true;
+    }
+
+    //for testing 
+    public List<int> GetCollectedItemCounts()
+    {
+        return new List<int>(collectedItems.Values);
+    }
+
+
+    public int GetTotalCollectedCount()
+    {
+        int total = 0;
+        foreach (var item in collectedItems.Values)
+        {
+            total += item;
+        }
+        return total;
+    }
+
 }
