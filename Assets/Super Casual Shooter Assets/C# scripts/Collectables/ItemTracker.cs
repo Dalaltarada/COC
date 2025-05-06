@@ -53,13 +53,14 @@ public class ItemTracker : MonoBehaviour
 
     public bool AllItemsCollected()
     {
-        foreach (var item in requiredItems)
+        foreach (var pair in collectedItems)
         {
-            if (collectedItems[item.Key] < item.Value)
+            if (pair.Value < requiredItems[pair.Key])
                 return false;
         }
         return true;
     }
+
 
     //for testing 
     public List<int> GetCollectedItemCounts()
@@ -77,5 +78,8 @@ public class ItemTracker : MonoBehaviour
         }
         return total;
     }
+
+
+    
 
 }

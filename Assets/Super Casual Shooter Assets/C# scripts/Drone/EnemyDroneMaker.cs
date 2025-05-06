@@ -1,12 +1,5 @@
-﻿/*
-    Written By Olusola Olaoye
-
-    To only be used by those who purchased from the Unity asset store
-*/
-
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Data;
 using UnityEngine;
 
 [RequireComponent(typeof(SphereCollider))]
@@ -16,23 +9,27 @@ public class EnemyDroneMaker : MonoBehaviour
     private Transform player;
 
     [SerializeField]
-    private Transform drone_position; // position to launch drone from
+    private Transform drone_position;
 
     [SerializeField]
     [Range(1, 6)]
-    private int number_of_enemy_drones = 1; // number of drones to launch at once
+    private int number_of_enemy_drones = 2; // default to 2
 
     [SerializeField]
-    protected EnemyDrone[] villain_drone_prefabs; // prefabs for enemy drones
+    protected EnemyDrone[] villain_drone_prefabs;
 
-    private void OnTriggerEnter(Collider other) // when player comes near this drone maker, spawn a random drone
+    private bool hasSpawned = false; // ✅ added
+
+    private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject == player.gameObject)
+        if (!hasSpawned && other.gameObject == player.gameObject)
         {
             for (int i = 0; i < number_of_enemy_drones; i++)
             {
                 spawnRandomDrone();
             }
+
+            hasSpawned = true; // ✅ prevent further spawns
         }
     }
 
@@ -43,14 +40,10 @@ public class EnemyDroneMaker : MonoBehaviour
         EnemyDrone drone = Instantiate(villain_drone_prefabs[rand], drone_position.position, Quaternion.identity);
         drone.player = player;
 
-        Damagable damagable = drone.GetComponent<Damagable>(); 
-
+        Damagable damagable = drone.GetComponent<Damagable>();
         if (damagable != null)
         {
-            Debug.Log("Assigning onDeath via AddListener");
             damagable.OnDeath.AddListener(drone.onDeath);
         }
     }
-
-
 }

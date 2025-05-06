@@ -1,30 +1,39 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
+using TMPro;
 
 public class HintActivator : MonoBehaviour
 {
-    public Light hintLight; // assign this in the Inspector
+    public TextMeshProUGUI hintText;
+    public GameObject hintTargetBox; // ✅ Add this
     private bool hintShown = false;
 
     void Update()
     {
-        if (ScoreManager.Instance == null || ItemTracker.Instance == null) return;
+        if (hintShown || ScoreManager.Instance == null || ItemTracker.Instance == null)
+            return;
 
-        int score = ScoreManager.Instance.GetScore();
-        int collectedCount = ItemTracker.Instance.GetTotalCollectedCount();
+        bool allItemsCollected = ItemTracker.Instance.AllItemsCollected();
+        bool allDronesDead = AllDronesDead();
 
-        if (!hintShown)
+        if (allItemsCollected && allDronesDead)
         {
-            Debug.Log($"[HintActivator] Score: {score}, Items: {collectedCount}, Light On: {hintLight.enabled}");
-
-            if (score >= 50 && collectedCount >= 1)
-            {
-                hintLight.enabled = true;
-                hintShown = true;
-                Debug.Log("✅ HINT LIGHT ACTIVATED!");
-            }
+            StartCoroutine(ShowHintTemporary());
+            hintTargetBox.SetActive(true); // ✅ Show green box
+            hintShown = true;
+            Debug.Log("✅ HINT MESSAGE & BOX DISPLAYED!");
         }
     }
 
+    private bool AllDronesDead()
+    {
+        return GameObject.FindObjectsOfType<EnemyDrone>().Length == 0;
+    }
 
-
+    private IEnumerator ShowHintTemporary()
+    {
+        hintText.gameObject.SetActive(true);
+        yield return new WaitForSeconds(5);
+        hintText.gameObject.SetActive(false);
+    }
 }
