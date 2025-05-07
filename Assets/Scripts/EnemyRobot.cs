@@ -24,19 +24,21 @@ public class EnemyRobot : MonoBehaviour
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
 
+        // Initial constraints (optional for flying fix)
+        rb.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+
         Damagable dmg = GetComponent<Damagable>();
         if (dmg != null)
         {
-            dmg.OnDeath.AddListener(onDeath); // ✅ THIS is what’s missing!
+            dmg.OnDeath.AddListener(onDeath);
         }
     }
-
 
     private void Update()
     {
         if (isDead || player == null) return;
 
-        // 🔁 For testing: kill robot with 'K'
+        // 🔁 Force kill for testing
         if (Input.GetKeyDown(KeyCode.K))
         {
             Debug.Log("🔪 Force kill key pressed!");
@@ -79,7 +81,7 @@ public class EnemyRobot : MonoBehaviour
         animator.SetTrigger("attack");
         animator.SetBool("isRunning", false);
 
-        yield return new WaitForSeconds(0.5f); // wait for animation to reach hit point
+        yield return new WaitForSeconds(0.5f);
 
         Vector3 hitCenter = transform.position + transform.forward * 1.2f;
         float hitRadius = 1.5f;
@@ -89,7 +91,7 @@ public class EnemyRobot : MonoBehaviour
         {
             if (hit.transform == transform) continue;
 
-            var damagable = hit.GetComponent<Damagable>(); // ✅ Attacking player or others
+            var damagable = hit.GetComponent<Damagable>();
             if (damagable != null)
             {
                 damagable.takeDamage(attackDamage);
@@ -107,8 +109,13 @@ public class EnemyRobot : MonoBehaviour
 
         isDead = true;
         Debug.Log("💀 Robot died!");
-        animator.SetTrigger("die");
 
+        animator.SetTrigger("die");
+        animator.SetBool("isRunning", false);
+        animator.ResetTrigger("attack");
+
+        // ✅ Let animation control movement
+        rb.constraints = RigidbodyConstraints.None;
         rb.velocity = Vector3.zero;
         rb.isKinematic = true;
 
