@@ -23,11 +23,26 @@ public class EnemyRobot : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
+
+        Damagable dmg = GetComponent<Damagable>();
+        if (dmg != null)
+        {
+            dmg.OnDeath.AddListener(onDeath); // ✅ THIS is what’s missing!
+        }
     }
+
 
     private void Update()
     {
         if (isDead || player == null) return;
+
+        // 🔁 For testing: kill robot with 'K'
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            Debug.Log("🔪 Force kill key pressed!");
+            onDeath();
+            return;
+        }
 
         float distance = Vector3.Distance(transform.position, player.position);
         transform.LookAt(player);
@@ -66,20 +81,19 @@ public class EnemyRobot : MonoBehaviour
 
         yield return new WaitForSeconds(0.5f); // wait for animation to reach hit point
 
-        // 👇 Enhanced range using OverlapSphere
         Vector3 hitCenter = transform.position + transform.forward * 1.2f;
         float hitRadius = 1.5f;
 
         Collider[] hits = Physics.OverlapSphere(hitCenter, hitRadius);
         foreach (var hit in hits)
         {
-            if (hit.transform == transform) continue; // skip self
+            if (hit.transform == transform) continue;
 
-            var damagable = hit.GetComponent<Damagable>();
-            if (damagable)
+            var damagable = hit.GetComponent<Damagable>(); // ✅ Attacking player or others
+            if (damagable != null)
             {
                 damagable.takeDamage(attackDamage);
-                break; // only damage one target
+                break;
             }
         }
 
@@ -87,14 +101,24 @@ public class EnemyRobot : MonoBehaviour
         isAttacking = false;
     }
 
-    public void OnDeath()
+    public void onDeath()
     {
+        if (isDead) return;
+
         isDead = true;
+        Debug.Log("💀 Robot died!");
         animator.SetTrigger("die");
-        Destroy(gameObject, 3);
+
+        rb.velocity = Vector3.zero;
+        rb.isKinematic = true;
+
+        foreach (var col in GetComponentsInChildren<Collider>())
+            col.enabled = false;
+
+        ScoreManager.Instance?.AddPoints(70);
+        Destroy(gameObject, 3f);
     }
 
-    // Optional: visualize hit radius in editor
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
