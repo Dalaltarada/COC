@@ -558,7 +558,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 250eeaefae4bea443becddcdcd344a81, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: d859c42abd6e10846b37d996829a9396, type: 2}
+      objectReference: {fileID: 2100000, guid: 518d2ee24d0071a4e851906ce2c09374, type: 2}
     - target: {fileID: -7511558181221131132, guid: 250eeaefae4bea443becddcdcd344a81, type: 3}
       propertyPath: m_Materials.Array.data[1]
       value: 
@@ -5408,7 +5408,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!82 &398627394
 AudioSource:
   m_ObjectHideFlags: 0
@@ -7120,6 +7120,25 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4659983286038757246, guid: 3253d2a413a7218469e2f013ba33d85d, type: 3}
   m_PrefabInstance: {fileID: 503821838}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &510962469 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 250eeaefae4bea443becddcdcd344a81, type: 3}
+  m_PrefabInstance: {fileID: 46611308}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &510962473
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 510962469}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 525ee7a89b3297a4b8c1016945e0870a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  newMaterialForElement0: {fileID: 2100000, guid: 3daf06f921e57e04cbcc7d284443b3db, type: 2}
+  newMaterialForElement1: {fileID: 501788981526674454, guid: 250eeaefae4bea443becddcdcd344a81, type: 3}
 --- !u!1001 &511316665
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8665,6 +8684,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   movement_speed: 10.2
   player_camera: {fileID: 2040093429}
+  canMove: 1
 --- !u!143 &622462335
 CharacterController:
   m_ObjectHideFlags: 0
@@ -18157,6 +18177,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   movement_speed: 10.2
   player_camera: {fileID: 1938373854}
+  canMove: 1
 --- !u!143 &1300675102
 CharacterController:
   m_ObjectHideFlags: 0
@@ -29983,7 +30004,7 @@ MonoBehaviour:
   scrollPos: {x: 54.06157, y: 6.0867577}
   variablesScrollPos: {x: 0, y: 0}
   variablesExpanded: 1
-  blockViewHeight: 307.33334
+  blockViewHeight: 430.66666
   zoom: 0.8800001
   scrollViewRect:
     serializedVersion: 2
@@ -29993,7 +30014,8 @@ MonoBehaviour:
     height: 859
   selectedBlocks:
   - {fileID: 2117485246}
-  selectedCommands: []
+  selectedCommands:
+  - {fileID: 2117485265}
   variables: []
   description: 
   stepPause: 0

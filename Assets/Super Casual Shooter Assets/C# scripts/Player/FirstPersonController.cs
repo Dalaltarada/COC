@@ -66,4 +66,23 @@ public class FirstPersonController : MonoBehaviour
             vertical_velocity = lift;
         }
     }
+
+    public void LockControl()
+    {
+        SetControlLock(true);
+    }
+
+    public void UnlockControl()
+    {
+        SetControlLock(false);
+    }
+
+    public void SetControlLock(bool isLocked)
+    {
+        canMove = !isLocked;
+        Cursor.lockState = isLocked ? CursorLockMode.None : CursorLockMode.Locked;
+        Cursor.visible = isLocked;
+    }
+
+
 }
