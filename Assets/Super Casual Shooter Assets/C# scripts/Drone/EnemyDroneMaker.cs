@@ -45,5 +45,14 @@ public class EnemyDroneMaker : MonoBehaviour
         {
             damagable.OnDeath.AddListener(drone.onDeath);
         }
+
+        // 🔊 Play flight sound if AudioSource exists
+        AudioSource audio = drone.GetComponent<AudioSource>();
+        if (audio != null && !audio.isPlaying)
+        {
+            audio.loop = true;
+            audio.Play();
+        }
     }
+
 }

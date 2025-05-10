@@ -660,11 +660,11 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 0}
-  m_PlayOnAwake: 1
+  m_audioClip: {fileID: 8300000, guid: 3a0216b7363768141837d96502e7942f, type: 3}
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -761,6 +761,8 @@ MonoBehaviour:
   attack_time: 3
   cool_down_time: 2
   attack_value: 0.1
+  attackSound: {fileID: 0}
+  deathSound: {fileID: 0}
 --- !u!1 &4991898774071502481
 GameObject:
   m_ObjectHideFlags: 0

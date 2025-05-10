@@ -1,42 +1,35 @@
-﻿/*
-    Written By Olusola Olaoye
-
-    To only be used by those who purchased from the Unity asset store
-*/
-
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(Damagable))]
 [RequireComponent(typeof(LineRenderer))]
+[RequireComponent(typeof(AudioSource))]
 public class EnemyDrone : MonoBehaviour
 {
-    [SerializeField]
-    [Range(1, 6)]
-    private int attack_time;
+    [SerializeField, Range(1, 6)] private int attack_time;
+    [SerializeField, Range(1, 4)] private int cool_down_time;
+    [SerializeField, Range(0, 1)] private float attack_value = 0.1f;
 
-    [SerializeField]
-    [Range(1, 4)]
-    private int cool_down_time;
+    [Header("Audio")]
+    [SerializeField] private AudioClip attackSound;
+    [SerializeField] private AudioClip deathSound;
 
     private Rigidbody rigid_body;
     private LineRenderer shoot_line;
+    private AudioSource audioSource;
 
     public Transform player { get; set; }
 
-    [SerializeField]
-    [Range(0, 1)]
-    private float attack_value = 0.1f;
-
     private float action_counter;
-    private bool is_dead = false; // ✅ Initialized here
+    private bool is_dead = false;
 
     private void Start()
     {
         shoot_line = GetComponent<LineRenderer>();
         rigid_body = GetComponent<Rigidbody>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     private void Update()
@@ -47,14 +40,14 @@ public class EnemyDrone : MonoBehaviour
         {
             if (action_counter >= attack_time)
             {
-                rigid_body.AddForce(Vector3.one * UnityEngine.Random.Range(0, 1));
+                rigid_body.AddForce(Vector3.one * Random.Range(0, 1));
                 shoot_line.enabled = false;
                 StartCoroutine(coolDown());
             }
             else
             {
                 action_counter += Time.deltaTime;
-                rigid_body.AddForce((player.transform.position - transform.position).normalized);
+                rigid_body.AddForce((player.position - transform.position).normalized);
                 attack();
             }
         }
@@ -69,11 +62,10 @@ public class EnemyDrone : MonoBehaviour
     private void attack()
     {
         RaycastHit hit;
-        Damagable damagable;
 
         if (Physics.Raycast(transform.position, transform.forward, out hit, 200))
         {
-            damagable = hit.collider.gameObject.GetComponent<Damagable>();
+            Damagable damagable = hit.collider.GetComponent<Damagable>();
             if (damagable != null)
             {
                 damagable.takeDamage(attack_value);
@@ -85,16 +77,29 @@ public class EnemyDrone : MonoBehaviour
 
                 shoot_line.enabled = true;
                 shoot_line.SetPositions(shoot_line_points);
+
+                // 🔊 Play attack sound
+                if (audioSource != null && attackSound != null)
+                {
+                    audioSource.PlayOneShot(attackSound);
+                }
             }
         }
     }
 
     public void onDeath()
     {
-        if (is_dead) return; // ✅ Prevent multiple calls
+        if (is_dead) return;
         is_dead = true;
 
         shoot_line.enabled = false;
+
+        // 🔊 Play death sound
+        if (audioSource != null && deathSound != null)
+        {
+            audioSource.PlayOneShot(deathSound);
+        }
+
         ScoreManager.Instance?.AddPoints(50);
 
         Destroy(gameObject, 3);
