@@ -14,6 +14,10 @@ public class EnemyRobot : MonoBehaviour
     [SerializeField] private float attackDamage = 0.2f;
     [SerializeField] private float attackCooldown = 2f;
 
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip hitSound;
+    [SerializeField] private AudioClip deathSound;
+
     private Animator animator;
     private Rigidbody rb;
     private bool isAttacking = false;
@@ -24,7 +28,6 @@ public class EnemyRobot : MonoBehaviour
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
 
-        // Initial constraints (optional for flying fix)
         rb.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
 
         Damagable dmg = GetComponent<Damagable>();
@@ -32,13 +35,14 @@ public class EnemyRobot : MonoBehaviour
         {
             dmg.OnDeath.AddListener(onDeath);
         }
+
+        RobotManager.Instance?.RegisterRobot(); // 👈 Register self
     }
 
     private void Update()
     {
         if (isDead || player == null) return;
 
-        // 🔁 Force kill for testing
         if (Input.GetKeyDown(KeyCode.K))
         {
             Debug.Log("🔪 Force kill key pressed!");
@@ -95,6 +99,12 @@ public class EnemyRobot : MonoBehaviour
             if (damagable != null)
             {
                 damagable.takeDamage(attackDamage);
+
+                if (audioSource != null && hitSound != null)
+                {
+                    audioSource.PlayOneShot(hitSound);
+                }
+
                 break;
             }
         }
@@ -110,11 +120,15 @@ public class EnemyRobot : MonoBehaviour
         isDead = true;
         Debug.Log("💀 Robot died!");
 
+        if (audioSource != null && deathSound != null)
+        {
+            audioSource.PlayOneShot(deathSound);
+        }
+
         animator.SetTrigger("die");
         animator.SetBool("isRunning", false);
         animator.ResetTrigger("attack");
 
-        // ✅ Let animation control movement
         rb.constraints = RigidbodyConstraints.None;
         rb.velocity = Vector3.zero;
         rb.isKinematic = true;
@@ -123,6 +137,9 @@ public class EnemyRobot : MonoBehaviour
             col.enabled = false;
 
         ScoreManager.Instance?.AddPoints(70);
+
+        RobotManager.Instance?.RobotDied(); //  Notify manager
+
         Destroy(gameObject, 3f);
     }
 
