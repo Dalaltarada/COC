@@ -6,11 +6,9 @@ public class ItemTracker : MonoBehaviour
 {
     public static ItemTracker Instance;
 
-
     [Header("UI References")]
     public TMP_Text ak47Text;
     public TMP_Text bombControllerText;
-    public TMP_Text timeBombText;
     public TMP_Text grenadeText;
 
     private Dictionary<string, int> collectedItems = new Dictionary<string, int>();
@@ -18,7 +16,6 @@ public class ItemTracker : MonoBehaviour
     {
         { "AK47", 1 },
         { "BombController", 1 },
-        { "TimeBomb", 3 },
         { "Grenade", 4 }
     };
 
@@ -46,8 +43,7 @@ public class ItemTracker : MonoBehaviour
     private void UpdateUI()
     {
         ak47Text.text = $"AK47 Gun {collectedItems["AK47"]}/{requiredItems["AK47"]}";
-        bombControllerText.text = $"Bomb Controller {collectedItems["BombController"]}/{requiredItems["BombController"]}";
-        timeBombText.text = $"Time Bomb {collectedItems["TimeBomb"]}/{requiredItems["TimeBomb"]}";
+        bombControllerText.text = $"Hacking Device {collectedItems["BombController"]}/{requiredItems["BombController"]}";
         grenadeText.text = $"Grenade {collectedItems["Grenade"]}/{requiredItems["Grenade"]}";
     }
 
@@ -61,13 +57,11 @@ public class ItemTracker : MonoBehaviour
         return true;
     }
 
-
-    //for testing 
+    // For testing
     public List<int> GetCollectedItemCounts()
     {
         return new List<int>(collectedItems.Values);
     }
-
 
     public int GetTotalCollectedCount()
     {
@@ -78,8 +72,4 @@ public class ItemTracker : MonoBehaviour
         }
         return total;
     }
-
-
-    
-
 }
