@@ -1,13 +1,19 @@
 ﻿using UnityEngine;
 using TMPro;
 
-public class ShowFactoryHint : MonoBehaviour
+public class ShowReusableHint : MonoBehaviour
 {
+    [Header("UI")]
     public GameObject hintPanel;
     public TMP_Text hintText;
 
-    public AudioSource audioSource;      // 🔊 The AudioSource component
-    public AudioClip hintSoundEffect;    // 🎵 The sound to play
+    [Header("Hint Settings")]
+    [TextArea]
+    public string hintMessage = "Default Hint Message";
+
+    [Header("Audio")]
+    public AudioSource audioSource;
+    public AudioClip hintSoundEffect;
 
     private bool hasShownHint = false;
 
@@ -21,7 +27,7 @@ public class ShowFactoryHint : MonoBehaviour
 
             // ✅ Show hint
             hintPanel.SetActive(true);
-            hintText.text = "hint : Items are found in the factory";
+            hintText.text = hintMessage;
 
             // 🔊 Play sound
             if (audioSource != null && hintSoundEffect != null)

@@ -147,6 +147,30 @@ public class PlayerCollectableManager : MonoBehaviour
             }
         }
     }
+    public Collectable getCurrentHeldCollectable()
+    {
+        if (current_weapons.Count == 0)
+            return null;
 
-    
+        return current_weapons[weapon_at_hand_index];
+    }
+
+    public void removeCollectable(Collectable collectable)
+    {
+        if (current_weapons.Contains(collectable))
+        {
+            collectable.dropThisObject();
+            collectable.transform.SetParent(null);
+            collectable.GetComponent<Rigidbody>().isKinematic = false;
+
+            current_weapons.Remove(collectable);
+
+            if (weapon_at_hand_index >= current_weapons.Count)
+            {
+                weapon_at_hand_index = Mathf.Clamp(weapon_at_hand_index - 1, 0, current_weapons.Count - 1);
+            }
+        }
+    }
+
+
 }

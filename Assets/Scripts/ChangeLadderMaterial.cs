@@ -1,45 +1,66 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class ChangeLadderMaterial : MonoBehaviour
 {
-    // Assign these in the Inspector
-    public Material newMaterialForElement0;
-    public Material newMaterialForElement1;
-
     private Material[] originalMaterials;
     private MeshRenderer meshRenderer;
-    private bool hasChanged = false;  // Renamed to better reflect its purpose
+    private bool hasChanged = false;
+    private bool playerIsNear = false;
 
     void Start()
     {
-        // Get the MeshRenderer component
         meshRenderer = GetComponent<MeshRenderer>();
 
-        // Store the original materials
         if (meshRenderer != null && meshRenderer.materials.Length > 0)
         {
             originalMaterials = meshRenderer.materials;
         }
     }
 
-    void OnMouseDown()
+    void Update()
     {
-        // Only execute if we haven't changed the materials yet
-        if (hasChanged) return;
+        if (playerIsNear && !hasChanged && Input.GetKeyDown(KeyCode.E))
+        {
+            var heldItem = PlayerCollectableManager.Instance.getCurrentHeldCollectable();
+            var ladder = heldItem as CollectableLadder;
 
-        if (meshRenderer == null || newMaterialForElement0 == null || newMaterialForElement1 == null)
+            if (ladder != null)
+            {
+                ladder.UseLadderOnHint(this);
+            }
+        }
+    }
+
+    public void ApplyMaterials(Material mat0, Material mat1)
+    {
+        if (hasChanged || meshRenderer == null || mat0 == null || mat1 == null)
             return;
 
         Material[] currentMaterials = meshRenderer.materials;
 
-        // Apply new materials (no toggle back)
-        currentMaterials[0] = newMaterialForElement0;
+        currentMaterials[0] = mat0;
         if (currentMaterials.Length > 1)
         {
-            currentMaterials[1] = newMaterialForElement1;
+            currentMaterials[1] = mat1;
         }
 
         meshRenderer.materials = currentMaterials;
-        hasChanged = true;  // Mark as changed so it won't execute again
+        hasChanged = true;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            playerIsNear = true;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            playerIsNear = false;
+        }
     }
 }
