@@ -9,6 +9,10 @@ public class FirstPersonController : MonoBehaviour
     private float movement_speed = 10;
 
     [SerializeField]
+    [Range(1f, 3f)]
+    private float runMultiplier = 1.92f; 
+
+    [SerializeField]
     private Camera player_camera;
 
     private CharacterController character_controller;
@@ -35,10 +39,15 @@ public class FirstPersonController : MonoBehaviour
     {
         if (!canMove) return; // ⛔ Don't move if disabled
 
-        Vector3 move_vector = new Vector3(direction.x, 0, direction.z) * movement_speed * Time.deltaTime;
+        // ✅ Use Shift key for running
+        float speed = Input.GetKey(KeyCode.LeftShift) ? movement_speed * runMultiplier : movement_speed;
+        Vector3 move_vector = new Vector3(direction.x, 0, direction.z) * speed * Time.deltaTime;
+
+        // Apply rotation based on look direction
         transform.rotation = Quaternion.Euler(look.eulerAngles.x, look.eulerAngles.y, 0);
         move_vector = transform.rotation * move_vector;
 
+        // Gravity and jumping
         addPlayerGravity();
 
         if (jump && is_player_grounded)
@@ -56,6 +65,10 @@ public class FirstPersonController : MonoBehaviour
         if (!character_controller.isGrounded)
         {
             vertical_velocity += Physics.gravity.y * Time.deltaTime * gravity_scale;
+        }
+        else if (vertical_velocity < 0)
+        {
+            vertical_velocity = -1f; // Keeps grounded nicely
         }
     }
 
@@ -83,6 +96,4 @@ public class FirstPersonController : MonoBehaviour
         Cursor.lockState = isLocked ? CursorLockMode.None : CursorLockMode.Locked;
         Cursor.visible = isLocked;
     }
-
-
 }
