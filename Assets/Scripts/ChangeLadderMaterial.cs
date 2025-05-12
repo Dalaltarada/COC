@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Fungus;
 
 public class ChangeLadderMaterial : MonoBehaviour
 {
@@ -6,6 +7,9 @@ public class ChangeLadderMaterial : MonoBehaviour
     private MeshRenderer meshRenderer;
     private bool hasChanged = false;
     private bool playerIsNear = false;
+
+    public Flowchart flowchart;                 // 🔹 Assign this in the Inspector
+    public string triggerBlockName = "OnLadderFixed"; // 🔹 Name of the block to execute in Fungus
 
     void Start()
     {
@@ -46,6 +50,12 @@ public class ChangeLadderMaterial : MonoBehaviour
 
         meshRenderer.materials = currentMaterials;
         hasChanged = true;
+
+        // ✅ Trigger the Fungus block
+        if (flowchart != null && !string.IsNullOrEmpty(triggerBlockName))
+        {
+            flowchart.ExecuteBlock(triggerBlockName);
+        }
     }
 
     private void OnTriggerEnter(Collider other)
