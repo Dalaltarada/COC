@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using Fungus; // ✅ Required to use Fungus API
 
 public class Keypad : MonoBehaviour
 {
@@ -7,11 +8,15 @@ public class Keypad : MonoBehaviour
     public GameObject keypadOB;       // Full keypad UI object
 
     public Text textOB;               // Text display for entered digits
-    public string answer = "12345";   // Correct code
+    public string answer = "2253";   // Correct code
 
     public AudioSource button;        // Sound on keypad press
     public AudioSource correct;       // Sound on correct input
     public AudioSource wrong;         // Sound on wrong input
+
+    [Header("Fungus")]
+    public Flowchart flowchart;       // ✅ Fungus Flowchart reference
+    public string successBlock = "GoToLevel5"; // ✅ Block name to trigger
 
     void Start()
     {
@@ -30,6 +35,12 @@ public class Keypad : MonoBehaviour
         {
             correct.Play();
             textOB.text = "Success";
+
+            // ✅ Trigger Fungus block
+            if (flowchart != null && !string.IsNullOrEmpty(successBlock))
+            {
+                flowchart.ExecuteBlock(successBlock);
+            }
         }
         else
         {
@@ -47,7 +58,7 @@ public class Keypad : MonoBehaviour
     public void Exit()
     {
         keypadOB.SetActive(false);
-        player.GetComponent<FirstPersonController>().canMove = true; // ✅ Re-enable movement
+        player.GetComponent<FirstPersonController>().canMove = true;
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
     }
@@ -56,7 +67,7 @@ public class Keypad : MonoBehaviour
     {
         if (keypadOB.activeInHierarchy)
         {
-            player.GetComponent<FirstPersonController>().canMove = false; // ⛔ Disable movement
+            player.GetComponent<FirstPersonController>().canMove = false;
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
         }
