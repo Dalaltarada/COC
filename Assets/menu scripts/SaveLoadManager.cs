@@ -4,16 +4,27 @@ using System.Collections;
 
 public class SaveLoadManager : MonoBehaviour
 {
-    public GameObject player; // Optional for gameplay scenes
+    public GameObject player;
 
     private const string sceneKey = "SavedScene";
     private const string posX = "PlayerPosX";
     private const string posY = "PlayerPosY";
     private const string posZ = "PlayerPosZ";
     private const string loadedFlag = "GameWasLoaded";
-
+    public static SaveLoadManager Instance { get; private set; }
     private void Awake()
     {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject); // optional: makes it persist across scenes
+        }
+        else
+        {
+            Destroy(gameObject); // prevent duplicates
+            return;
+        }
+
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
@@ -26,7 +37,7 @@ public class SaveLoadManager : MonoBehaviour
     {
         string sceneName = SceneManager.GetActiveScene().name;
         PlayerPrefs.SetString(sceneKey, sceneName);
-        PlayerPrefs.SetInt(loadedFlag, 0); // Mark as fresh start
+        PlayerPrefs.SetInt(loadedFlag, 0);
 
         if (player == null)
         {
@@ -41,30 +52,30 @@ public class SaveLoadManager : MonoBehaviour
             PlayerPrefs.SetFloat(posZ, pos.z);
         }
 
+        PlayerPrefs.SetInt("Score", ScoreManager.Instance.GetScore());
         PlayerPrefs.Save();
-        Debug.Log($"💾 Saved: Scene={sceneName}, Pos={player?.transform.position}");
+        Debug.Log($"\ud83d\uddd2\ufe0f Saved: Scene={sceneName}, Pos={player?.transform.position}");
     }
 
     public void LoadGame()
     {
         if (!PlayerPrefs.HasKey(sceneKey))
         {
-            Debug.LogWarning("⚠ No saved game found.");
+            Debug.LogWarning("\u26a0 No saved game found.");
             return;
         }
 
-        PlayerPrefs.SetInt(loadedFlag, 1); // Mark as loading from save
+        PlayerPrefs.SetInt(loadedFlag, 1);
         PlayerPrefs.Save();
 
-        Time.timeScale = 1f;
         string sceneToLoad = PlayerPrefs.GetString(sceneKey);
         SceneManager.LoadScene(sceneToLoad);
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (scene.name == "MainMenu") return; // ✅ Skip processing if we're in the main menu
-
+        if (scene.name == "MainMenu") return;
+        if (PlayerPrefs.GetInt(loadedFlag, 0) == 0) return;
         if (!PlayerPrefs.HasKey(posX)) return;
 
         GameObject foundPlayer = GameObject.FindGameObjectWithTag("Player");
@@ -73,13 +84,14 @@ public class SaveLoadManager : MonoBehaviour
             float x = PlayerPrefs.GetFloat(posX);
             float y = PlayerPrefs.GetFloat(posY);
             float z = PlayerPrefs.GetFloat(posZ);
-
             foundPlayer.transform.position = new Vector3(x, y, z);
-            Debug.Log($"✅ Loaded player to position: {foundPlayer.transform.position}");
+            Debug.Log($"\u2705 Loaded player to position: {foundPlayer.transform.position}");
         }
-        else
+
+        if (ScoreManager.Instance != null)
         {
-            Debug.LogWarning("⚠ Player object not found in loaded scene.");
+            int savedScore = PlayerPrefs.GetInt("Score", 0);
+            ScoreManager.Instance.SetScore(savedScore);
         }
 
         StartCoroutine(ResetLoadedFlagNextFrame());
@@ -87,10 +99,10 @@ public class SaveLoadManager : MonoBehaviour
 
     private IEnumerator ResetLoadedFlagNextFrame()
     {
-        yield return null; // Wait one frame
+        yield return null;
         PlayerPrefs.SetInt(loadedFlag, 0);
         PlayerPrefs.Save();
-        Debug.Log("🔄 GameWasLoaded flag reset");
+        Debug.Log("\ud83d\udd04 GameWasLoaded flag reset");
     }
 
     public void DeleteSave()
@@ -100,6 +112,7 @@ public class SaveLoadManager : MonoBehaviour
         PlayerPrefs.DeleteKey(posY);
         PlayerPrefs.DeleteKey(posZ);
         PlayerPrefs.DeleteKey(loadedFlag);
-        Debug.Log("🗑️ Save data cleared.");
+        PlayerPrefs.DeleteKey("Score");
+        Debug.Log("\ud83d\uddd1\ufe0f Save data cleared.");
     }
 }

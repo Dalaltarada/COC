@@ -39,18 +39,25 @@ public class PlayerCollectableManager : MonoBehaviour
 
     private PlayerInput player_input;
 
-   
-	// Use this for initialization
-	void Start ()
+
+    // Use this for initialization
+    void Start()
     {
-        
-        if(instance == null)
+        if (instance == null)
         {
             instance = this;
+            DontDestroyOnLoad(gameObject); // ✅ persists across scenes
         }
-        player_input = gameObject.GetComponent<PlayerInput>();
+        else
+        {
+            Destroy(gameObject); // ✅ prevents duplicates in new scene
+            return;
+        }
 
+        player_input = GetComponent<PlayerInput>();
     }
+
+
 
     // Update is called once per frame
     void Update()
@@ -172,5 +179,45 @@ public class PlayerCollectableManager : MonoBehaviour
         }
     }
 
+    public void SaveInventory()
+    {
+        List<string> collectedItemTags = new List<string>();
+
+        foreach (var item in current_weapons)
+        {
+            collectedItemTags.Add(item.gameObject.tag); // or item.gameObject.name
+        }
+
+        string joined = string.Join(",", collectedItemTags);
+        PlayerPrefs.SetString("InventoryItems", joined);
+        PlayerPrefs.Save();
+
+        Debug.Log("💾 Inventory saved: " + joined);
+    }
+
+    public void RestoreInventoryFromSaved()
+    {
+        string data = PlayerPrefs.GetString("InventoryItems", "");
+
+        if (string.IsNullOrEmpty(data))
+            return;
+
+        string[] itemTags = data.Split(',');
+
+        foreach (string tag in itemTags)
+        {
+            GameObject item = GameObject.FindGameObjectWithTag(tag);
+            if (item != null && item.TryGetComponent<Collectable>(out var collectable))
+            {
+                assignCollectableToHand(collectable);
+            }
+            else
+            {
+                Debug.LogWarning($"⚠ Could not find or assign item with tag: {tag}");
+            }
+        }
+
+        Debug.Log("✅ Inventory restored.");
+    }
 
 }

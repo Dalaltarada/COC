@@ -13,6 +13,12 @@ public class RobotManager : MonoBehaviour
 
     private int robotCount = 0;
 
+
+    public bool AreAllRobotsDead()
+    {
+        return robotCount <= 0;
+    }
+
     private void Awake()
     {
         if (Instance == null)
