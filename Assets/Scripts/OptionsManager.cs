@@ -15,17 +15,27 @@ public class OptionsManager : MonoBehaviour
 
     void Start()
     {
-        // 🎧 Load & apply volume
-        float savedVolume = PlayerPrefs.GetFloat("Volume", 0.8f); // default to 0.8
-        volumeSlider.value = savedVolume;
-        SetVolume(savedVolume); // ensure audio is applied even if slider not interacted with
+        // 🎧 Volume setup
+        float savedVolume = PlayerPrefs.GetFloat("Volume", 0.8f);
+        if (volumeSlider != null)
+        {
+            volumeSlider.onValueChanged.RemoveAllListeners();
+            volumeSlider.value = savedVolume;
+            volumeSlider.onValueChanged.AddListener(SetVolume);
+        }
+        SetVolume(savedVolume);
 
-        // 🎮 Load & apply sensitivity
+        // 🎮 Sensitivity setup
         float savedSensitivity = PlayerPrefs.GetFloat("Sensitivity", 1f);
-        sensitivitySlider.value = savedSensitivity;
+        if (sensitivitySlider != null)
+        {
+            sensitivitySlider.onValueChanged.RemoveAllListeners();
+            sensitivitySlider.value = savedSensitivity;
+            sensitivitySlider.onValueChanged.AddListener(SetSensitivity);
+        }
         SetSensitivity(savedSensitivity);
 
-        // 🖥️ Setup resolution dropdown
+        // 🖥️ Resolution setup
         resolutions = Screen.resolutions;
         resolutionDropdown.ClearOptions();
         int currentResolutionIndex = 0;
@@ -47,7 +57,9 @@ public class OptionsManager : MonoBehaviour
         int savedResIndex = PlayerPrefs.GetInt("Resolution", currentResolutionIndex);
         resolutionDropdown.value = savedResIndex;
         resolutionDropdown.RefreshShownValue();
-        SetResolution(savedResIndex); // 👈 apply resolution
+        resolutionDropdown.onValueChanged.RemoveAllListeners();
+        resolutionDropdown.onValueChanged.AddListener(SetResolution);
+        SetResolution(savedResIndex);
     }
 
     public void SetVolume(float volume)
@@ -101,6 +113,4 @@ public class OptionsManager : MonoBehaviour
         instructionsPanel.SetActive(false);
         optionsPanel.SetActive(true);
     }
-
-
 }
