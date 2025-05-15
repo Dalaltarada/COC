@@ -11,6 +11,7 @@ public class LaserGun : Gun
 
     [SerializeField]
     private Image shoot_load_prefab;
+
     private Image shoot_load;
 
     [SerializeField]
@@ -22,17 +23,22 @@ public class LaserGun : Gun
 
     protected LineRenderer shoot_line
     {
-        get
-        {
-            return gameObject.GetComponent<LineRenderer>();
-        }
+        get { return GetComponent<LineRenderer>(); }
     }
 
     protected override void Start()
     {
         base.Start();
 
-        shoot_load = Instantiate(shoot_load_prefab); // instantiate shoot load bar
+        if (shoot_load_prefab != null)
+        {
+            shoot_load = Instantiate(shoot_load_prefab);
+        }
+        else
+        {
+            Debug.LogWarning("⚠ shoot_load_prefab is not assigned.");
+        }
+
         audioSource = GetComponent<AudioSource>();
     }
 
@@ -40,10 +46,19 @@ public class LaserGun : Gun
     {
         base.Update();
 
-        if (is_in_players_pocket)
+        if (is_in_players_pocket && shoot_load != null)
         {
             shoot_start_position.rotation = transform.parent.rotation;
-            shoot_load.transform.SetParent(FindObjectOfType<GameScreen>().transform, false);
+
+            GameScreen gameScreen = FindObjectOfType<GameScreen>();
+            if (gameScreen != null)
+            {
+                shoot_load.transform.SetParent(gameScreen.transform, false);
+            }
+            else
+            {
+                Debug.LogWarning("⚠ GameScreen not found in scene.");
+            }
         }
     }
 
@@ -51,9 +66,8 @@ public class LaserGun : Gun
     {
         if (gameObject.activeSelf && is_in_players_pocket && PlayerInput.instance.mouse_left_click && current_bullet > 0)
         {
-            current_bullet -= 1;
+            current_bullet--;
 
-            // 🔊 Play laser sound
             if (audioSource != null && laserShotSound != null)
             {
                 audioSource.PlayOneShot(laserShotSound);
@@ -63,38 +77,37 @@ public class LaserGun : Gun
 
             if (Physics.Raycast(shoot_start_position.position, shoot_start_position.forward, out hit))
             {
-                if (hit.collider.gameObject.GetComponent<Damagable>() != null)
+                var damagable = hit.collider.gameObject.GetComponent<Damagable>();
+
+                if (damagable != null)
                 {
                     count_shooting += count_additive * Time.deltaTime;
 
-                    if (count_shooting > hit.collider.gameObject.GetComponent<Damagable>().getMaxHealth())
+                    if (count_shooting > damagable.getMaxHealth())
                     {
-                        hit.collider.gameObject.GetComponent<Damagable>().takeDamage((int)count_shooting);
+                        damagable.takeDamage((int)count_shooting);
                     }
 
-                    shoot_load.gameObject.SetActive(true);
-                    shoot_load.fillAmount = count_shooting / hit.collider.gameObject.GetComponent<Damagable>().getMaxHealth();
+                    if (shoot_load != null)
+                    {
+                        shoot_load.gameObject.SetActive(true);
+                        shoot_load.fillAmount = count_shooting / damagable.getMaxHealth();
+                    }
                 }
                 else
                 {
                     count_shooting = 0;
-                    shoot_load.gameObject.SetActive(false);
+                    if (shoot_load != null) shoot_load.gameObject.SetActive(false);
                 }
 
-                // 🔴 Update laser line
                 shoot_line.enabled = true;
-                Vector3[] shoot_poses = new Vector3[]
-                {
-                    shoot_start_position.position, hit.point
-                };
-
-                shoot_line.SetPositions(shoot_poses);
+                shoot_line.SetPositions(new Vector3[] { shoot_start_position.position, hit.point });
             }
         }
         else
         {
             shoot_line.enabled = false;
-            shoot_load.gameObject.SetActive(false);
+            if (shoot_load != null) shoot_load.gameObject.SetActive(false);
         }
     }
 }

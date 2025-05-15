@@ -1,49 +1,29 @@
-﻿/*
-    Written By Olusola Olaoye
-
-    To only be used by those who purchased from the Unity asset store
-
-*/
-
-
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public abstract class Gun : Collectable
 {
-
     [SerializeField]
     protected TMPro.TMP_Text bullet_display;
-    
+
     [SerializeField]
     [Range(5, 5000)]
-    protected int max_bullet; // maximim bullet in the gun
-    
+    protected int max_bullet;
+
     [SerializeField]
-    protected Transform shoot_start_position; // this is where the shoot raycast will start fromS
+    protected Transform shoot_start_position;
 
-
-    
     [SerializeField]
-    [Range(10, 1000)] 
-    protected float gun_damage = 20; // the amount of damage the gun can do to a damagable
+    [Range(10, 1000)]
+    protected float gun_damage = 20;
 
- 
-
-    public int current_bullet // the current number of bullets in the gun
-    {
-        get;
-        protected set;
-    }
-    
+    public int current_bullet { get; protected set; }
 
     protected virtual void Start()
     {
-        
-        current_bullet = max_bullet; // initialliy, current bullet should be maximum
-        
+        current_bullet = max_bullet;
     }
 
     protected override void Update()
@@ -51,7 +31,7 @@ public abstract class Gun : Collectable
         base.Update();
 
         shoot();
-       
+
         if (is_in_players_pocket && gameObject.activeSelf)
         {
             showAimEffect();
@@ -60,27 +40,32 @@ public abstract class Gun : Collectable
         displayBullet();
     }
 
-    
-
-    protected abstract void shoot(); // will have specific implementation depending on the type of gun
-
+    protected abstract void shoot();
 
     protected virtual void displayBullet()
     {
-        bullet_display.text = current_bullet + " / " + max_bullet;
+        if (bullet_display != null)
+        {
+            bullet_display.text = current_bullet + " / " + max_bullet;
+        }
+        else
+        {
+            Debug.LogWarning($"⚠ bullet_display not assigned on {gameObject.name}");
+        }
     }
 
-
-    // to accurately show where gun is aiming using the Aim texture
     private void showAimEffect()
     {
-        
+        if (shoot_start_position == null) return;
+
         RaycastHit hit;
 
-        if(Physics.Raycast(shoot_start_position.position, shoot_start_position.forward, out hit))
+        if (Physics.Raycast(shoot_start_position.position, shoot_start_position.forward, out hit))
         {
-            AimTexture.Instance.setPosition( Camera.main.WorldToScreenPoint(hit.point));
-
+            if (AimTexture.Instance != null)
+            {
+                AimTexture.Instance.setPosition(Camera.main.WorldToScreenPoint(hit.point));
+            }
         }
     }
 }

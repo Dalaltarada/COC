@@ -10,9 +10,16 @@ public class KeypadTrigger : MonoBehaviour
 
     void Start()
     {
+        if (keypadOB == null || keypadText == null || player == null)
+        {
+            Debug.LogError("❌ One or more references not assigned in KeypadTrigger!");
+            return;
+        }
+
         keypadOB.SetActive(false);
         keypadText.SetActive(false);
     }
+
 
     void OnTriggerEnter(Collider other)
     {

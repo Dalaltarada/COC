@@ -1,84 +1,66 @@
-﻿/*
-    Written By Olusola Olaoye
-
-    To only be used by those who purchased from the Unity asset store
-
-*/
-
-
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerCollectableManager : MonoBehaviour
 {
-
     #region Singleton
     private static PlayerCollectableManager instance;
-    public static PlayerCollectableManager Instance
-    {
-        get
-        {
-            return instance;
-        }
-    }
-
+    public static PlayerCollectableManager Instance => instance;
     #endregion
 
-
-   
     private List<Collectable> current_weapons = new List<Collectable>();
-
-    public int weapon_at_hand_index
-    {
-        get;
-        set;
-    }
-  
+    public int weapon_at_hand_index { get; set; }
     public Transform hand;
 
     private PlayerInput player_input;
 
-
-    // Use this for initialization
     void Start()
     {
         if (instance == null)
         {
             instance = this;
-            DontDestroyOnLoad(gameObject); // ✅ persists across scenes
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
-            Destroy(gameObject); // ✅ prevents duplicates in new scene
+            Destroy(gameObject);
             return;
         }
 
         player_input = GetComponent<PlayerInput>();
     }
 
-
-
-    // Update is called once per frame
     void Update()
     {
-        if (player_input.disinteract)
+        if (player_input != null && player_input.disinteract && current_weapons.Count > 0 && weapon_at_hand_index < current_weapons.Count)
         {
             dropCollectable(current_weapons[weapon_at_hand_index]);
-
         }
 
         updateWeaponIndex();
-
         updateWeaponAtHand();
 
-        // aim texture should only be visible if the weapon currently held is a type of Gun
-        AimTexture.Instance.setActive(current_weapons.Count > 0 && current_weapons[weapon_at_hand_index].GetType().BaseType == typeof(Gun));
-
+        // ✅ Safely handle AimTexture and weapon logic
+        if (AimTexture.Instance != null && current_weapons.Count > 0 && weapon_at_hand_index < current_weapons.Count)
+        {
+            Collectable currentWeapon = current_weapons[weapon_at_hand_index];
+            if (currentWeapon != null && currentWeapon.GetType().BaseType == typeof(Gun))
+            {
+                AimTexture.Instance.setActive(true);
+            }
+            else
+            {
+                AimTexture.Instance.setActive(false);
+            }
+        }
+        else if (AimTexture.Instance != null)
+        {
+            AimTexture.Instance.setActive(false);
+        }
     }
 
-
-    private void updateWeaponIndex() // use the mouse scroll wheel to change currect weapon
+    private void updateWeaponIndex()
     {
         if (Input.GetAxis("Mouse ScrollWheel") > 0)
         {
@@ -88,17 +70,16 @@ public class PlayerCollectableManager : MonoBehaviour
         {
             weapon_at_hand_index -= 1;
         }
+
         weapon_at_hand_index = Mathf.Clamp(weapon_at_hand_index, 0, current_weapons.Count - 1);
-
     }
-
 
     public void removeWeaponFromList(Collectable weapon)
     {
         current_weapons.Remove(weapon);
     }
 
-    private void updateWeaponAtHand() // set only the current weapon visible
+    private void updateWeaponAtHand()
     {
         for (int i = 0; i < current_weapons.Count; i++)
         {
@@ -113,7 +94,7 @@ public class PlayerCollectableManager : MonoBehaviour
         }
     }
 
-    public void assignCollectableToHand(Collectable collectable) // pick up a collectable and set it to hand position
+    public void assignCollectableToHand(Collectable collectable)
     {
         collectable.pickUpThisObject();
 
@@ -122,38 +103,31 @@ public class PlayerCollectableManager : MonoBehaviour
         collectable.GetComponent<Rigidbody>().isKinematic = true;
         collectable.transform.SetParent(hand.transform);
         collectable.transform.position = (hand.transform.position + off_Set);
-        
         collectable.transform.rotation = hand.rotation;
 
         current_weapons.Add(collectable);
     }
 
-
-    public void dropCollectable(Collectable collectable) //drop a collectable
+    public void dropCollectable(Collectable collectable)
     {
-
         collectable.dropThisObject();
-
         collectable.transform.SetParent(null);
-
         collectable.GetComponent<Rigidbody>().isKinematic = false;
-        collectable.GetComponent<Rigidbody>().AddForce(transform.forward * 200); // to give the effect that player threw the weapon foward
+        collectable.GetComponent<Rigidbody>().AddForce(transform.forward * 200);
 
-
-        StartCoroutine(changeCollectable()); // a little bit of delay before we switch to the next available collectable in our inventory
+        StartCoroutine(changeCollectable());
 
         IEnumerator changeCollectable()
         {
             yield return new WaitForSeconds(1);
-
             current_weapons.Remove(collectable);
-
             if (weapon_at_hand_index > 0)
             {
                 weapon_at_hand_index -= 1;
             }
         }
     }
+
     public Collectable getCurrentHeldCollectable()
     {
         if (current_weapons.Count == 0)
@@ -185,7 +159,7 @@ public class PlayerCollectableManager : MonoBehaviour
 
         foreach (var item in current_weapons)
         {
-            collectedItemTags.Add(item.gameObject.tag); // or item.gameObject.name
+            collectedItemTags.Add(item.gameObject.tag);
         }
 
         string joined = string.Join(",", collectedItemTags);
@@ -198,7 +172,6 @@ public class PlayerCollectableManager : MonoBehaviour
     public void RestoreInventoryFromSaved()
     {
         string data = PlayerPrefs.GetString("InventoryItems", "");
-
         if (string.IsNullOrEmpty(data))
             return;
 
@@ -219,5 +192,4 @@ public class PlayerCollectableManager : MonoBehaviour
 
         Debug.Log("✅ Inventory restored.");
     }
-
 }

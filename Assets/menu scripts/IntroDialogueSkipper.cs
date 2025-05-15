@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using Fungus;
+﻿using Fungus;
+using UnityEngine;
 
 public class IntroDialogueSkipper : MonoBehaviour
 {
@@ -7,17 +7,20 @@ public class IntroDialogueSkipper : MonoBehaviour
 
     void Start()
     {
-        int wasLoaded = PlayerPrefs.GetInt("GameWasLoaded", 0);
-
-        if (wasLoaded == 0 && flowchart != null)
+        if (flowchart == null)
         {
-            // Trigger the StartIntro block manually
+            Debug.LogError("❌ Flowchart not assigned in IntroDialogueSkipper!");
+            return;
+        }
+
+        if (flowchart.HasBlock("StartIntro"))
+        {
             flowchart.ExecuteBlock("StartIntro");
-            Debug.Log("🎬 Starting intro dialogue (fresh game)");
         }
         else
         {
-            Debug.Log("🎬 Skipping intro dialogue (loaded from save)");
+            Debug.LogWarning("⚠ Block 'StartIntro' not found in Flowchart: " + flowchart.name);
         }
     }
+
 }
