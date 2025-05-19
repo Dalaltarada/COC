@@ -50,6 +50,7 @@ public class LaserGun : Gun
         {
             shoot_start_position.rotation = transform.parent.rotation;
 
+            // Try to find the GameScreen object in the scene
             GameScreen gameScreen = FindObjectOfType<GameScreen>();
             if (gameScreen != null)
             {
@@ -57,7 +58,10 @@ public class LaserGun : Gun
             }
             else
             {
+                // If GameScreen is not found, log a warning and optionally handle the situation
                 Debug.LogWarning("⚠ GameScreen not found in scene.");
+                // Optionally, you can handle it by disabling the shoot_load object, or other logic.
+                // shoot_load.gameObject.SetActive(false); // Uncomment if you want to hide shoot_load when GameScreen is not found
             }
         }
     }
@@ -87,17 +91,10 @@ public class LaserGun : Gun
                     {
                         damagable.takeDamage((int)count_shooting);
                     }
-
-                    if (shoot_load != null)
-                    {
-                        shoot_load.gameObject.SetActive(true);
-                        shoot_load.fillAmount = count_shooting / damagable.getMaxHealth();
-                    }
                 }
                 else
                 {
                     count_shooting = 0;
-                    if (shoot_load != null) shoot_load.gameObject.SetActive(false);
                 }
 
                 shoot_line.enabled = true;

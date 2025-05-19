@@ -6,10 +6,6 @@ using UnityEngine.UI;
 public abstract class Gun : Collectable
 {
     [SerializeField]
-    protected TMPro.TMP_Text bullet_display;
-
-    [SerializeField]
-    [Range(5, 5000)]
     protected int max_bullet;
 
     [SerializeField]
@@ -29,30 +25,15 @@ public abstract class Gun : Collectable
     protected override void Update()
     {
         base.Update();
-
         shoot();
 
         if (is_in_players_pocket && gameObject.activeSelf)
         {
             showAimEffect();
         }
-
-        displayBullet();
     }
 
     protected abstract void shoot();
-
-    protected virtual void displayBullet()
-    {
-        if (bullet_display != null)
-        {
-            bullet_display.text = current_bullet + " / " + max_bullet;
-        }
-        else
-        {
-            Debug.LogWarning($"⚠ bullet_display not assigned on {gameObject.name}");
-        }
-    }
 
     private void showAimEffect()
     {
